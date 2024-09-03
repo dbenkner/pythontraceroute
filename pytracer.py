@@ -27,25 +27,34 @@ class Py_Trace:
         message_bytes = message.encode('utf-8') 
         udp_socket.settimeout(1)
         for ttl in range(1,61):
-            st = time.time()
-            udp_socket.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
-            udp_socket.sendto(message_bytes, (ipval, port))
-            try:
-                recv, addr = icmp_socket.recvfrom(1024)
-                et = time.time()
-                total_time = round((et - st) * 1000, 3)
+            total_time = ['','','']
+            for i in range(0,3):
+                st = time.time()
+                addr = ('','')
+                hopurl = ''
+                udp_socket.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
+                udp_socket.sendto(message_bytes, (ipval, port))
                 try:
-                    hopurl = socket.gethostbyaddr(addr[0])
-                except:
-                    hopurl = addr
-                print(f'{ttl} {addr[0]} ({hopurl[0]}) {total_time}ms')
-                if addr[0] == ipval:
-                    break
-            except socket.timeout as t:
-                print(f'{ttl} * * * Request Timed Out!')
-            except socket.error as s:
-                print(f"Socket Error: {s}")
-                print(f"{ttl} {addr[0]}")
+                    recv, addr = icmp_socket.recvfrom(1024)
+                    et = time.time()
+                    total_time[i] = f'{round((et - st) * 1000, 3)} ms'
+                    try:
+                        hopurl = f'({socket.gethostbyaddr(addr[0])[0]})'
+                    except:
+                        hopurl = f'({addr[0]})'
+                    if addr[0] == ipval:
+                        break
+                except socket.timeout as t:
+                    total_time[i] = "*"
+                    
+                except socket.error as s:
+                    print(f"Socket Error: {s}")
+                    print(f"{ttl} {addr[0]}")
         
+            print(f'{ttl} {addr[0]} {hopurl} {total_time[0]} {total_time[1]} {total_time[2]}')
+            if addr[0] == ipval:
+                break
+        icmp_socket.close()
+        udp_socket.close()
     
                 
