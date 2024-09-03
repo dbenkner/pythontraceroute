@@ -50,8 +50,8 @@ class Py_Trace:
                 except socket.error as s:
                     print(f"Socket Error: {s}")
                     print(f"{ttl} {addr[0]}")
-        
-            print(f'{ttl} {addr[0]} {hopurl} {total_time[0]} {total_time[1]} {total_time[2]}')
+            ttl_str = f'{ttl}'
+            print(f'{ttl_str.rjust(2)} {addr[0]} {hopurl} {total_time[0]} {total_time[1]} {total_time[2]}')
             if addr[0] == ipval:
                 break
         icmp_socket.close()
