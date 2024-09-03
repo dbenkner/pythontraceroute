@@ -3,6 +3,7 @@ import dns.exception
 import dns.resolver
 import time
 import math
+import struct
 class Py_Trace:
     def __init__(self):
         pass
@@ -38,12 +39,15 @@ class Py_Trace:
                     recv, addr = icmp_socket.recvfrom(1024)
                     et = time.time()
                     total_time[i] = f'{round((et - st) * 1000, 3)} ms'
-                    try:
-                        hopurl = f'({socket.gethostbyaddr(addr[0])[0]})'
-                    except:
-                        hopurl = f'({addr[0]})'
-                    if addr[0] == ipval:
-                        break
+                    # check for icmp header
+                    icmp_header = recv[20:28]
+                    type,code,checkcum,packetID,sequence = struct.unpack('bbHHh',icmp_header)
+                    if type == 11 and code == 0:
+                        try:
+                            hopurl = f'({socket.gethostbyaddr(addr[0])[0]})'
+                        except:
+                            hopurl = f'({addr[0]})'
+                        total_time[i] = f'{round((et - st) *1000, 3)} ms'
                 except socket.timeout as t:
                     total_time[i] = "*"
                     
