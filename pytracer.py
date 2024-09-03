@@ -42,7 +42,9 @@ class Py_Trace:
                     # check for icmp header
                     icmp_header = recv[20:28]
                     type,code,checkcum,packetID,sequence = struct.unpack('bbHHh',icmp_header)
-                    if type == 11 and code == 0:
+                    udp_payload = recv[44:48]
+                    dest_ip = socket.inet_ntoa(struct.unpack('!4s',udp_payload)[0])
+                    if type == 11 and code == 0 and dest_ip == ipval:
                         try:
                             hopurl = f'({socket.gethostbyaddr(addr[0])[0]})'
                         except:
