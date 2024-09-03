@@ -37,19 +37,18 @@ class Py_Trace:
                 udp_socket.sendto(message_bytes, (ipval, port))
                 try:
                     recv, addr = icmp_socket.recvfrom(1024)
-                    et = time.time()
-                    total_time[i] = f'{round((et - st) * 1000, 3)} ms'
                     # check for icmp header
                     icmp_header = recv[20:28]
                     type,code,checkcum,packetID,sequence = struct.unpack('bbHHh',icmp_header)
                     udp_payload = recv[44:48]
                     dest_ip = socket.inet_ntoa(struct.unpack('!4s',udp_payload)[0])
-                    if type == 11 and code == 0 and dest_ip == ipval:
+                    if self.verify_packet(type,code,ipval,dest_ip):
+                        et = time.time()
+                        total_time[i] = f'{round((et-st) *1000, 3)} ms'
                         try:
                             hopurl = f'({socket.gethostbyaddr(addr[0])[0]})'
                         except:
                             hopurl = f'({addr[0]})'
-                        total_time[i] = f'{round((et - st) *1000, 3)} ms'
                 except socket.timeout as t:
                     total_time[i] = "*"
                     
@@ -62,5 +61,11 @@ class Py_Trace:
                 break
         icmp_socket.close()
         udp_socket.close()
-    
+    @staticmethod
+    def verify_packet(type,code,dest_ip,dest_ip_from_udp):
+        if type == 11 and code == 0 and dest_ip_from_udp == dest_ip:
+            return True
+        if dest_ip == dest_ip_from_udp:
+            return True
+        return False
                 
