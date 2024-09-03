@@ -13,7 +13,7 @@ class Py_Trace:
             print(f'invalid url entry')
             return
         ipval = ip[0].to_text()
-        print(f'trace route to {url} ({ipval}), 64 hops max, 32 byte packet')
+        print(f'trace route to {url} ({ipval}), 60 hops max, 32 byte packet')
         try:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             icmp_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
@@ -26,7 +26,7 @@ class Py_Trace:
         message = "aaaa"
         message_bytes = message.encode('utf-8') 
         udp_socket.settimeout(1)
-        for ttl in range(1,60):
+        for ttl in range(1,61):
             st = time.time()
             udp_socket.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
             udp_socket.sendto(message_bytes, (ipval, port))
